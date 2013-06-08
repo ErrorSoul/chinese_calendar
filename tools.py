@@ -1,7 +1,7 @@
 #This class contains all needed items and tools for manipulating and analyze chinese dates
 
 from datetime import datetime
-
+from datetime import timedelta 
 
 class Cycle(object):
     """Class make and contain dictionary for all possibly combination with
@@ -14,11 +14,27 @@ class Cycle(object):
     Each date element equal some combination heavenly stems and earth branches
     date in west world = 1.01.1901
     date in chinese world = (year)[heavenly stems][earth branch](month)......
-    example year = yand wood rat
+    example  = [[yand wood rat],[ox ying wood],
+               [yang earth rooster],[yang fire tiger]]
+    ********
+    year                     [yand wood rat]
+
+    ********
+    month                    [ox ying wood]
+
+    ********
+    day                      [yang earth rooster]
+
+    ********
+    hour                     [yang fire tiger
     ********
 
     Chinese horoscope involves 60 combination of h.stems and e.branches
     Every cycle of year/month/day/hours equal 60.
+
+    Cycle start with [yang wood rat]: yang wood is the first earthly
+    branshes element. rat is the first heavenly stems element.
+    second element in cycle eaual [heavenly_stems[1],earthly_branches[1]], etc
 
     """
 
@@ -64,11 +80,11 @@ class Date(datetime, Cycle):
         
         #new cycle of hours started in 16 dec 1923 23:00
         self.start_hour = datetime(1923,12,16, 23, 0)
-        self.moon_month = 30
+        self.moon_month = 29
         self.b = self.table_year[self.year % 19]
         self.year_new_moon = datetime(self.year,self.first_month,
                                       self.moon_month - self.first_month
-                                      - self.b)
+                                      - self.b, 23, 0)
 
     def convert_year(self):
         """ Return chinese representation of year """
@@ -97,7 +113,11 @@ class Date(datetime, Cycle):
     def convert_month(self):
         """ Return chinese representation of month """
 
-        pass
+        month_delta = timedelta(29.5306)
+        f = []
+        for c in range(12):
+            f.append(self.year_new_moon + c * month_delta)
+        return f
 
     def convert_day(self):
         """ Return chinese representation of day """
@@ -109,7 +129,7 @@ class Date(datetime, Cycle):
 
         delta = self - self.start_hour
 
-        delta = int((delta / 3600) / 2) % 60
+        delta = int((delta.total_seconds() / 3600) / 2) % 60
 
         return self.comb_dict[delta]
         
