@@ -111,6 +111,11 @@ class Date(datetime, Cycle):
         #different between same years in methonic cycle 
         self.big_delta = timedelta(6939, 25368) 
 
+    def __str__(self):
+        a = (super(Date,self).__str__()).center(30)
+        return "{0}\n{1:.<15}[{2}]\n{3:.<15}[{4}]\n{5:.<15}[{6}]\n{7:.<15}[{8}]\n".format(a,"year", self.convert_year(),"month",self.convert_month(),
+                                                                           "day",self.convert_day(),"hour", self.convert_hour())
+
         
     def date_of_myear(self):
         """Return date of new moon year"""
@@ -156,9 +161,9 @@ class Date(datetime, Cycle):
         f = []
         for c in range(12):
             f.append(self.date_of_myear() + c * month_delta)
-        print 'fffff', f
+        
         month_index = [filter(lambda x: self > x, f)[-1]]
-        print 'ccccccc', month_index
+        
         if month_index and len(month_index) == 1:
             index = (self.num_of_index() + f.index(month_index[0])) % 60
         else:
