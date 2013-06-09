@@ -115,8 +115,21 @@ class Date(datetime, Cycle):
         a = (super(Date,self).__str__()).center(30)
         return "{0}\n{1:.<15}[{2}]\n{3:.<15}[{4}]\n{5:.<15}[{6}]\n{7:.<15}[{8}]\n".format(a,"year", self.convert_year(),"month",self.convert_month(),
                                                                            "day",self.convert_day(),"hour", self.convert_hour())
+    
+    def __repr__(self):
+        if self.hour != 0  and self.minute != 0:
+            
+            lst = [self.convert_year(),self.convert_month(),
+                   self.convert_day(), self.convert_hour()]
+        else :
+            lst = [self.convert_year(),self.convert_month(),
+                   self.convert_day() ]
+            
+        lst = ["{0} {1}".format(x[0], x[1]) for x in lst ]
+        a = super(Date,self).__repr__()
 
-        
+        return "{0}\n{1}".format(a,lst)
+    
     def date_of_myear(self):
         """Return date of new moon year"""
         
@@ -139,9 +152,21 @@ class Date(datetime, Cycle):
         
 
         return self.comb_dict[num]
+
     def num_of_index(self):
-            year = self.convert_year()[0]
-            
+        """This function return the index of first moon month in self.comb_dict
+           for a given year.For certain heavenly stems of year have certain index
+           the first moon month
+        """
+        #heavenly stem of current year
+        year = self.convert_year()[0]
+        
+        lst = [[(0,5),2],[(1,6),14],[(2,7), 26],
+              [(3,8),38],[(4,9), 51]]
+        for c in lst:
+            if year == self.heavenly_stems[c[0][0]] or self.heavenly_stems[c[0][1]]:
+                return c [1]
+        """ 
             if year == self.heavenly_stems[0] or year == self.heavenly_stems[5]:
                 indexa  = 2
             elif year  == self.heavenly_stems[1] or year == self.heavenly_stems[6]:
@@ -153,6 +178,7 @@ class Date(datetime, Cycle):
             elif year == self.heavenly_stems[4] or year == self.heavenly_stems[9]:
                 indexa = 51
             return indexa
+            """
              
     def convert_month(self):
         """ Return chinese representation of month """
@@ -169,10 +195,9 @@ class Date(datetime, Cycle):
         else:
             index = self.num_of_index() - 1
         
-        
-        
-
         return self.comb_dict[index]
+
+
 
     def convert_day(self):
         """ Return chinese representation of day """
@@ -188,9 +213,7 @@ class Date(datetime, Cycle):
 
         return self.comb_dict[delta]
         
-    def f(self):
-        print self.convert_day(),self.convert_year()
-        
+
 
 
 
