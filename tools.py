@@ -38,15 +38,16 @@ class Cycle(object):
 
     """
 
-    #len(heavenly_stems) = 12
+    #len(earth_branches) = 10
     
-    heavenly_stems = ("rat", "ox", "tiger", "rabbit", "dragon",
+    earth_branches = ("rat", "ox", "tiger", "rabbit", "dragon",
                       "snake", "horse", "sheep", "monkey", "rooster",
                       "dog", "pig")
 
-    #len(earth_branches) = 10
+   
+    #len(heavenly_stems) = 12
 
-    earth_branches = ("yang wood","ying wood","yang fire",
+    heavenly_stems = ("yang wood","ying wood","yang fire",
                       "ying fire","yang earth","ying earth",
                       "yang metal","ying metal","yang water","ying water")
 
@@ -74,10 +75,9 @@ class Cycle(object):
     
                 
 
-    first_month = 1
-    second_month = 2
-    heavtocycle = heavenly_stems * 5
-    earthtocycle = earth_branches * 6
+    
+    heavtocycle = heavenly_stems * 6
+    earthtocycle = earth_branches * 5
     comb_dict = {x:y for x,y in enumerate(zip(heavtocycle,earthtocycle))}
 
 
@@ -86,15 +86,14 @@ class Date(datetime, Cycle):
     def __init__(self, *kwrgs):
         super(Date, self).__init__(*kwrgs)
 
-        #new cycle of days started 17 dec 1923
-        self.start_day = datetime(1923, 12, 17)
+       
 
         #new cycle of year started in 1924
         self.start_year = 1924
         
-        #new cycle of hours started in 16 dec 1923 23:00
-        self.start_hour = datetime(1923,12,16, 23, 0)
-        self.moon_month = 29
+        #new cycle of hours and days started in 16 dec 1923 23:00
+        self.start_day = datetime(1923,12,16, 23, 0)
+       
 
         #number of year in methonic cycle equal year % 19 
         self.methon = self.year % 19
@@ -112,43 +111,63 @@ class Date(datetime, Cycle):
         #different between same years in methonic cycle 
         self.big_delta = timedelta(6939, 25368) 
 
-        #date of first new moon in sun year
-        self.year_new_moon = datetime(self.year,self.first_month,
-                                      self.moon_month - self.first_month
-                                      - self.b, 23, 0)
+        
+    def date_of_myear(self):
+        """Return date of new moon year"""
+        
 
+        count_cycle = (self.year - self.wyear.year) / 19
+       
+        new_moon_year = self.wyear + count_cycle * (self.big_delta + self.delta)
+        return new_moon_year
+        
     def convert_year(self):
         """ Return chinese representation of year """
 
-       
-        
-        # 22 jan the most earliest date of chinese new year
-        if  self.year_new_moon >= datetime(self.year, self.first_month, 22):
-            moon_new_year = self.year_new_moon
-             
-        else:
-            moon_new_year = datetime(self.year,self.second_month,
-                                     self.moon_month - self.second_month
-                                     - self.b )
             
 
-        if moon_new_year <= self:
+        if self.date_of_myear() <= self:
             num = (self.year - 1924) % 60
         else:
-            num = ((self.year - 1924) % 60) - 1
+            num = ((self.year - 1924 -1) % 60) 
             
         
 
         return self.comb_dict[num]
-
+    def num_of_index(self):
+            year = self.convert_year()[0]
+            
+            if year == self.heavenly_stems[0] or year == self.heavenly_stems[5]:
+                indexa  = 2
+            elif year  == self.heavenly_stems[1] or year == self.heavenly_stems[6]:
+                indexa = 14
+            elif year == self.heavenly_stems[2] or year == self.heavenly_stems[7]:
+                indexa = 26
+            elif year == self.heavenly_stems[3] or year == self.heavenly_stems[8]:
+                indexa = 38
+            elif year == self.heavenly_stems[4] or year == self.heavenly_stems[9]:
+                indexa = 51
+            return indexa
+             
     def convert_month(self):
         """ Return chinese representation of month """
-
         month_delta = timedelta(29.530588853)
+         
         f = []
         for c in range(12):
-            f.append(self.year_new_moon + c * month_delta)
-        return f
+            f.append(self.date_of_myear() + c * month_delta)
+        print 'fffff', f
+        month_index = [filter(lambda x: self > x, f)[-1]]
+        print 'ccccccc', month_index
+        if month_index and len(month_index) == 1:
+            index = (self.num_of_index() + f.index(month_index[0])) % 60
+        else:
+            index = self.num_of_index() - 1
+        
+        
+        
+
+        return self.comb_dict[index]
 
     def convert_day(self):
         """ Return chinese representation of day """
@@ -158,7 +177,7 @@ class Date(datetime, Cycle):
     def convert_hour(self):
         """ Return chinese representation of hour """
 
-        delta = self - self.start_hour
+        delta = self - self.start_day
 
         delta = int((delta.total_seconds() / 3600) / 2) % 60
 
