@@ -34,3 +34,7 @@ diff = [folder[num+1] - folder[num] for num in range(len(folder) - 1)]
 
 foo = sum(map(timedelta.total_seconds, diff))
 
+different = (diff[-1]- diff[0]).total_seconds() / len(folder) # key idea
+
+#In [982]: diff[0] - timedelta(0, 2952)
+#Out[982]: datetime.timedelta(6939, 25368)

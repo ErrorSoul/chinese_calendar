@@ -188,12 +188,14 @@ class Date(datetime, Cycle):
         for c in range(12):
             f.append(self.date_of_myear() + c * month_delta)
         
-        month_index = [filter(lambda x: self > x, f)[-1]]
         
-        if month_index and len(month_index) == 1:
-            index = (self.num_of_index() + f.index(month_index[0])) % 60
+        month_index = filter(lambda x: self > x, f)
+        
+        
+        if month_index :
+            index = (self.num_of_index() + f.index(month_index[-1])) % 60
         else:
-            index = self.num_of_index() - 1
+            index = (self.num_of_index() - 1) % 60
         
         return self.comb_dict[index]
 
